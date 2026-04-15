@@ -1,0 +1,7 @@
+polars
+matplotlib
+seaborn
+scipy
+numpy
+dataclasses
+time
