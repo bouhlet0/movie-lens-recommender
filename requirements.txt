@@ -1,7 +1,5 @@
-polars
-matplotlib
-seaborn
-scipy
-numpy
-dataclasses
-time
+matplotlib==3.10.8
+numpy==2.4.4
+polars==1.39.3
+scipy==1.17.1
+seaborn==0.13.2
