@@ -99,6 +99,14 @@ def to_sparse_matrix(
         shape=(n_users, n_items),
     )
 
+def compute_item_popularity(train_df: pl.DataFrame) -> dict[int, int]:
+    return dict(
+        train_df
+        .group_by("item_idx")
+        .agg(pl.len().alias("count"))
+        .iter_rows()
+    )
+
 @dataclass
 class Dataset:
     train_df:   pl.DataFrame
@@ -111,6 +119,7 @@ class Dataset:
     idx2item:   dict[int, int]
     n_users:    int
     n_items:    int
+    item_popularity: dict[int, int]
     train_matrix: sp.csr_matrix
     # metadata
     n_train:    int
@@ -151,6 +160,7 @@ def build_dataset(
 
     n_users = len(user2idx)
     n_items = len(item2idx)
+    item_popularity = compute_item_popularity(train_df)
     train_matrix = to_sparse_matrix(train_df, n_users, n_items)
 
     sparsity = 1.0 - train_matrix.nnz / (n_users * n_items)
@@ -162,6 +172,7 @@ def build_dataset(
         movies_df=movies,
         user2idx=user2idx,
         item2idx=item2idx,
+        item_popularity=item_popularity,
         idx2user={v: k for k, v in user2idx.items()},
         idx2item={v: k for k, v in item2idx.items()},
         n_users=n_users,
