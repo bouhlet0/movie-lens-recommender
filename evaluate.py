@@ -127,16 +127,29 @@ def evaluate_ranking_model(
     }
     all_recommendations: list[list[int]] = []
 
+    train_items_per_user = {
+        row["user_idx"]: set(row["item_idx"])
+        for row in (
+            train_df
+            .group_by("user_idx")
+            .agg(pl.col("item_idx"))
+            .iter_rows(named=True)
+        )
+    }
+
     for user_idx, relevant in relevant_map.items():
         if not relevant:
             continue
 
+        train_seen = train_items_per_user.get(user_idx, set())
         seen: set[int] = set()
         recommended: list[int] = []
         for item in model.recommend(user_idx, k):
-            if item not in seen:
+            if item not in seen and item not in train_seen:
                 seen.add(item)
                 recommended.append(item)
+            if len(recommended) == k:
+                break
 
         all_recommendations.append(recommended)
 
@@ -155,6 +168,7 @@ def evaluate_ranking_model(
         f"map@{k}":         float(np.mean(metrics["ap"])),
         f"mrr@{k}":         float(np.mean(metrics["mrr"])),
         "n_eval_users":     float(len(relevant_map)),
+        "eval_coverage":    float(len(relevant_map)) / eval_df["user_idx"].n_unique(),
     }
 
     if n_items is not None:
