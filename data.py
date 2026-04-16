@@ -60,16 +60,31 @@ def remap_ids(
     unique_users = train["userId"].unique().sort()
     unique_items = train["movieId"].unique().sort()
 
-    user2idx: dict[int, int] = {uid: idx for idx, uid in enumerate(unique_users.to_list())}
-    item2idx: dict[int, int] = {iid: idx for idx, iid in enumerate(unique_items.to_list())}
+    user_map = pl.DataFrame({
+        "userId":   unique_users,
+        "user_idx": pl.int_range(len(unique_users), eager=True).cast(pl.Int32),
+    })
+    item_map = pl.DataFrame({
+        "movieId":  unique_items,
+        "item_idx": pl.int_range(len(unique_items), eager=True).cast(pl.Int32),
+    })
 
     def apply_remap(df: pl.DataFrame) -> pl.DataFrame:
-        return df.with_columns([
-            pl.col("userId").replace(user2idx).alias("user_idx").cast(pl.Int32),
-            pl.col("movieId").replace(item2idx).alias("item_idx").cast(pl.Int32),
-        ])
+        return (
+            df
+            .join(user_map, on="userId",  how="left")
+            .join(item_map, on="movieId", how="left")
+            .drop_nulls(["user_idx", "item_idx"])
+        )
 
-    return apply_remap(train), apply_remap(val), apply_remap(test), user2idx, item2idx
+    train = apply_remap(train)
+    val = apply_remap(val)
+    test = apply_remap(test)
+
+    user2idx = dict(zip(user_map["userId"].to_list(),  user_map["user_idx"].to_list()))
+    item2idx = dict(zip(item_map["movieId"].to_list(), item_map["item_idx"].to_list()))
+
+    return train, val, test, user2idx, item2idx
 
 def temporal_split(
     ratings: pl.DataFrame,
