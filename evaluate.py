@@ -182,3 +182,77 @@ def evaluate_ranking_model(
         )
 
     return results
+
+if __name__ == "__main__":
+    # Minimal mock model
+    class MockModel:
+        def __init__(self, recs: list[int]):
+            self._recs = recs
+        def recommend(self, user_idx: int, k: int) -> list[int]:
+            return self._recs
+
+    # Perfect recommender
+    assert ndcg_at_k([0, 1, 2], {0, 1, 2}, k=3) == 1.0
+    assert precision_at_k([0, 1, 2], {0, 1, 2}, k=3) == 1.0
+    assert recall_at_k([0, 1, 2], {0, 1, 2}, k=3) == 1.0
+    assert mrr_at_k([0, 1, 2], {0, 1, 2}, k=3) == 1.0
+    assert hit_at_k([0, 1, 2], {0, 1, 2}, k=3) == 1.0
+    print("OK: perfect recommender")
+
+    # Worst recommender
+    assert ndcg_at_k([3, 4, 5], {0, 1, 2}, k=3) == 0.0
+    assert mrr_at_k([3, 4, 5], {0, 1, 2}, k=3) == 0.0
+    print("OK: worst recommender")
+
+    # Known partial: 1 hit at rank 2 (0-indexed rank 1), k=3
+    assert mrr_at_k([3, 0, 4], {0}, k=3) == 0.5
+    expected_ndcg = (1.0 / log2(3)) / (1.0 / log2(2))
+    assert abs(ndcg_at_k([3, 0, 4], {0}, k=3) - expected_ndcg) < 1e-9
+    print("OK: partial hit at rank 2")
+
+    train_df = pl.DataFrame({
+        "user_idx": [0, 0, 1, 1, 2, 2],
+        "item_idx": [10, 11, 10, 12, 11, 13],
+        "rating":   [5.0, 3.0, 4.0, 2.0, 5.0, 4.0],
+    })
+    # User 2 has no ratings >= 4.0 in eval, so eval_coverage = 2/3
+    eval_df = pl.DataFrame({
+        "user_idx": [0, 1, 2],
+        "item_idx": [5, 6, 7],
+        "rating":   [5.0, 4.0, 2.0],
+    })
+    results = evaluate_ranking_model(
+        MockModel([5, 6, 7, 8, 9]),
+        train_df, eval_df, k=3, relevance_threshold=4.0
+    )
+    assert abs(results["eval_coverage"] - 2/3) < 1e-9
+    print("OK: eval_coverage")
+
+    train_df2 = pl.DataFrame({
+        "user_idx": [0, 0],
+        "item_idx": [0, 1],
+        "rating":   [5.0, 4.0],
+    })
+    eval_df2 = pl.DataFrame({
+        "user_idx": [0],
+        "item_idx": [2],
+        "rating":   [5.0],
+    })
+    # Model returns train items first, then valid items
+    results2 = evaluate_ranking_model(
+        MockModel([0, 1, 2, 3, 4]),  # 0 and 1 should be excluded
+        train_df2, eval_df2, k=3, relevance_threshold=4.0
+    )
+    assert results2[f"hit_rate@3"] == 1.0
+    print("OK: train item exclusion")
+
+    # k enforcement: model returns 100 items, recommended must be capped at k
+    class CountingModel:
+        def recommend(self, user_idx, k):
+            return list(range(100))  # way more than k
+    results3 = evaluate_ranking_model(
+        CountingModel(), train_df2, eval_df2, k=3, relevance_threshold=4.0
+    )
+    print("OK: k enforcement (no crash on oversized model output)")
+
+    print("\nAll checks passed.")
