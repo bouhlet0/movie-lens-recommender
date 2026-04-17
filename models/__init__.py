@@ -1,0 +1,6 @@
+from .global_mean import GlobalMeanModel
+from .item_mean import ItemMeanModel
+from .user_mean import UserMeanModel
+from .bias import BiasModel
+from .popularity import PopularityModel
+from .mf_svd import MFSVDModel
