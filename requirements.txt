@@ -3,3 +3,4 @@ numpy==2.4.4
 polars==1.39.3
 scipy==1.17.1
 seaborn==0.13.2
+implicit==0.7.2

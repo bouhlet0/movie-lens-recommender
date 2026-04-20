@@ -4,3 +4,4 @@ from .user_mean import UserMeanModel
 from .bias import BiasModel
 from .popularity import PopularityModel
 from .mf_svd import MFSVDModel
+from .als import ALSModel
