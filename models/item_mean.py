@@ -22,7 +22,7 @@ class ItemMeanModel(BaseRecommender):
         self._item_means = dict(
             train_df
             .group_by("item_idx")
-            .agg(pl.col("rating").mean.alias("mean"))
+            .agg(pl.col("rating").mean().alias("mean"))
             .iter_rows()
         )
         self._seen = build_seen_items(train_df)

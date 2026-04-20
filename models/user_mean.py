@@ -22,7 +22,7 @@ class UserMeanModel(BaseRecommender):
         self._user_means = dict(
             train_df
             .group_by("user_idx")
-            .agg(pl.col("rating").mean.alias("mean"))
+            .agg(pl.col("rating").mean().alias("mean"))
             .iter_rows()
         )
         self._seen = build_seen_items(train_df)

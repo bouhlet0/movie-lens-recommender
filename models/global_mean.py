@@ -17,7 +17,7 @@ class GlobalMeanModel (BaseRecommender):
         self._seen: dict[int, set[int]] = {}
         
     def fit(self, train_df: pl.DataFrame) -> None:
-        self.global_mean = train_df["Rating"].mean()
+        self.global_mean = train_df["rating"].mean()
         self._seen = build_seen_items(train_df)
         
     def predict(self, eval_df: pl.DataFrame) -> np.ndarray:
