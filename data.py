@@ -173,7 +173,7 @@ def leave_last_n_split(
     train = ranked.filter(train_mask).drop("rank")
 
     return train, val, test
-
+@dataclass
 class Dataset:
     train_df:   pl.DataFrame
     val_df:     pl.DataFrame
