@@ -243,7 +243,7 @@ if __name__ == "__main__":
         MockModel([0, 1, 2, 3, 4]),  # 0 and 1 should be excluded
         train_df2, eval_df2, k=3, relevance_threshold=4.0
     )
-    assert results2[f"hit_rate@3"] == 1.0
+    assert results2["hit_rate@3"] == 1.0
     print("OK: train item exclusion")
 
     # k enforcement: model returns 100 items, recommended must be capped at k
