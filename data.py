@@ -2,7 +2,6 @@ import polars as pl
 from pathlib import Path
 import scipy.sparse as sp
 import numpy as np
-from typing import Optional
 from dataclasses import dataclass
 
 DATA_DIR = Path("./data/ml-32m/")
@@ -199,8 +198,8 @@ class Dataset:
     sparsity:   float
 
     # evaluation metadata (LLN-specific, optional)
-    n_eval_users: Optional[int] = None
-    eval_coverage: Optional[float] = None
+    n_eval_users: int | None = None
+    eval_coverage: float | None = None
 
 
 def build_dataset(
@@ -221,16 +220,6 @@ def build_dataset(
 
     elif split == "leave_last_n":
         train_df, val_df, test_df = leave_last_n_split(ratings, n=lln_n)
-
-        n_total_users = ratings["userId"].n_unique()
-        n_eval_users = (
-            ratings
-            .group_by("userId")
-            .agg(pl.len().alias("n_interactions"))
-            .filter(pl.col("n_interactions") >= 2 * lln_n + 1)
-            .height
-        )
-        eval_coverage = n_eval_users / n_total_users
 
     else:
         raise ValueError(f"Unknown split: '{split}'")
@@ -264,6 +253,8 @@ def build_dataset(
     item_popularity = compute_item_popularity(train_df)
 
     sparsity = 1.0 - train_matrix.nnz / (n_users * n_items)
+    n_eval_users  = val_df["user_idx"].n_unique() if split == "leave_last_n" else None
+    eval_coverage = n_eval_users / n_users if n_eval_users is not None else None
 
     return Dataset(
         train_df=train_df,
