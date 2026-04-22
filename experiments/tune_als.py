@@ -1,4 +1,6 @@
 import sys
+import os
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -12,9 +14,9 @@ def objective(trial: optuna.Trial, ds) -> float:
     factors         = trial.suggest_int("factors",    64, 256, step=64)
     iterations      = trial.suggest_int("iterations", 20, 80, step=10)
     regularization  = trial.suggest_float("regularization", 0.01, 0.1, log=True)
-    alpha           = trial.suggest_float("alpha", 1.0, 50.0, log=True)
+    alpha           = trial.suggest_float("alpha", 1.0, 100.0, log=True)
 
-
+    eval_sample = ds.val_df.sample(fraction=0.05, seed=42)
     from models.als import ALSModel
     model = ALSModel(
         factors=factors,
@@ -27,7 +29,7 @@ def objective(trial: optuna.Trial, ds) -> float:
     results = evaluate_ranking_model(
         model=model,
         train_df=ds.train_df,
-        eval_df=ds.val_df,
+        eval_df=eval_sample,
         k=10,
         relevance_threshold=4.0,
         item_popularity=ds.item_popularity,

@@ -11,6 +11,7 @@ from evaluate import evaluate_ranking_model
 def objective(trial: optuna.Trial, ds) -> float:
     k           = trial.suggest_int("k", 32,  200, step=32)
 
+    eval_sample = ds.val_df.sample(fraction=0.05, seed=42)
     from models.mf_svd import MFSVDModel
     model = MFSVDModel(
         n_users=ds.n_users,
@@ -22,7 +23,7 @@ def objective(trial: optuna.Trial, ds) -> float:
     results = evaluate_ranking_model(
         model=model,
         train_df=ds.train_df,
-        eval_df=ds.val_df,
+        eval_df=eval_sample,
         k=10,
         relevance_threshold=4.0,
         item_popularity=ds.item_popularity,
