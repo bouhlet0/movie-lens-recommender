@@ -126,15 +126,21 @@ def to_implicit_matrix(
     df: pl.DataFrame,
     n_users: int,
     n_items: int,
-    alpha: float = 40.0,
+    threshold: float = 4.0,
 ) -> sp.csr_matrix:
-    confidence = 1.0 + alpha * df["rating"].to_numpy().astype(np.float32)
+    ratings = df["rating"].to_numpy()
+    users   = df["user_idx"].to_numpy()
+    items   = df["item_idx"].to_numpy()
+
+    mask = ratings >= threshold
+
     return sp.csr_matrix(
         (
-            confidence,
-            (df["user_idx"].to_numpy(), df["item_idx"].to_numpy()),
+            np.ones(mask.sum(), dtype=np.float32),
+            (users[mask], items[mask]),
         ),
         shape=(n_users, n_items),
+        dtype=np.float32,
     )
     
 def leave_last_n_split(
