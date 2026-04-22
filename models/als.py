@@ -33,6 +33,7 @@ class ALSModel(BaseRecommender):
         self.factors = factors
         self.iterations = iterations
         self.regularization = regularization
+        self.alpha = alpha
 
         if use_gpu is None:
             try:
@@ -57,7 +58,9 @@ class ALSModel(BaseRecommender):
     def fit(self, train_df: pl.DataFrame, implicit_matrix: sp.csr_matrix) -> None:
         self._seen = build_seen_items(train_df)
         self._n_items = implicit_matrix.shape[1]
-        confidence_matrix = (implicit_matrix * self.alpha).astype(np.float32)
+        confidence_matrix = implicit_matrix.copy()
+        confidence_matrix.data = 1.0 + self.alpha * confidence_matrix.data
+        confidence_matrix = confidence_matrix.astype(np.float32)
         self._model.fit(confidence_matrix.T.tocsr())
 
         uf  = self._model.user_factors
