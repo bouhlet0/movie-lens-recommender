@@ -1,0 +1,10 @@
+{
+  "best_value": 0.07468826503287633,
+  "best_params": {
+    "factors": 128,
+    "iterations": 60,
+    "regularization": 0.025804941796400173,
+    "alpha": 6.296245989874056
+  },
+  "n_trials": 42
+}

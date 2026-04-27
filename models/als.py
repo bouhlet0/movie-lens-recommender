@@ -38,7 +38,7 @@ class ALSModel(BaseRecommender):
         if use_gpu is None:
             try:
                 import cupy
-                print("Importing cupy")
+                print("Using GPU with cupy")
                 use_gpu = True
             except ImportError:
                 use_gpu = False
