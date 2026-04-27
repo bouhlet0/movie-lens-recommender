@@ -1,6 +1,9 @@
+cupy-cuda12x==14.0.1
+implicit==0.7.2
 matplotlib==3.10.8
 numpy==2.4.4
+optuna==4.8.0
 polars==1.39.3
 scipy==1.17.1
 seaborn==0.13.2
-implicit==0.7.2
+torch==2.6.0+cu124
