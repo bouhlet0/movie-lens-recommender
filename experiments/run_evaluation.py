@@ -9,6 +9,8 @@ from evaluate import evaluate_ranking_model
 from models.als import ALSModel
 from models.mf_svd import MFSVDModel
 from models.popularity import PopularityModel
+from models.bpr import BPRModel
+from models.lightgcn import LightGCNModel
 
 
 def load_best(name: str, results_dir: Path) -> dict:
@@ -64,6 +66,27 @@ def main() -> None:
     als.fit(ds.train_df, ds.implicit_matrix)
     records.append({"model": "ALS (tuned)",
                     **evaluate_ranking_model(model=als, **eval_kwargs)})
+       
+    # Tuned BPR
+    print("Fitting tuned BPR...")
+    bpr_best = load_best("bpr", results_dir)
+    bpr = BPRModel(**bpr_best["best_params"])
+    bpr.fit(ds.train_df, ds.implicit_matrix)
+    records.append({"model": "BPR (tuned)",
+                **evaluate_ranking_model(model=bpr, **eval_kwargs)})
+    
+    # Tuned LightGCN
+    print("Fitting tuned LightGCN...")
+    lgcn_best = load_best("lightgcn", results_dir)
+    lgcn = LightGCNModel(
+        n_users=ds.n_users,
+        n_items=ds.n_items,
+        batch_size=4096,
+        **lgcn_best["best_params"],
+    )
+    lgcn.fit(ds.train_df)
+    records.append({"model": "LightGCN (tuned)",
+                    **evaluate_ranking_model(model=lgcn, **eval_kwargs)})
 
     # Save
     metrics_df = pl.DataFrame(records).sort("ndcg@10", descending=True)
