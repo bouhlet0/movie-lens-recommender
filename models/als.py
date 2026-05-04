@@ -26,7 +26,7 @@ class ALSModel(BaseRecommender):
         factors: int = 50,
         iterations: int = 20,
         regularization: float = 0.01,
-        use_gpu: bool | None = None,
+        use_gpu: bool | None = False,
         alpha: float = 1.0,
         
     ) -> None:
