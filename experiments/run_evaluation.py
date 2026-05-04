@@ -24,7 +24,7 @@ def load_best(name: str, results_dir: Path) -> dict:
 
 def main() -> None:
     print("Building LLN dataset...")
-    ds = build_dataset(split="leave_last_n", k=10, lln_n=2)
+    ds = build_dataset(split="leave_last_n", k=10, lln_n=10)
 
     results_dir = Path(__file__).parent / "results"
     results_dir.mkdir(exist_ok=True)
@@ -88,6 +88,16 @@ def main() -> None:
     records.append({"model": "LightGCN (tuned)",
                     **evaluate_ranking_model(model=lgcn, **eval_kwargs)})
 
+    from models.bivae import BiVAEModel
+
+    # Tuned BiVAE
+    print("Fitting tuned BiVAE...")
+    bivae_best = load_best("bivae", results_dir)
+    bivae = BiVAEModel(**bivae_best["best_params"])
+    bivae.fit(ds.train_df)
+    records.append({"model": "BiVAE (tuned)",
+                    **evaluate_ranking_model(model=bivae, **eval_kwargs)})
+    
     # Save
     metrics_df = pl.DataFrame(records).sort("ndcg@10", descending=True)
     display_cols = [

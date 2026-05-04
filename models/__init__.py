@@ -7,3 +7,4 @@ from .mf_svd import MFSVDModel
 from .als import ALSModel
 from .bpr import BPRModel
 from .lightgcn import LightGCNModel
+from .bivae import BiVAEModel
