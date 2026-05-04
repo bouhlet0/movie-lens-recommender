@@ -1,3 +1,4 @@
 /data
 __pycache__/
-experiments\results\lightgcn_model_100epoch.pkl
+experiments/results/*.pkl
+experiments/results/*.npz
