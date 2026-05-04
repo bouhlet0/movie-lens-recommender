@@ -332,3 +332,27 @@ if __name__ == "__main__":
     print(f" Test max datetime: {ds.test_df['datetime'].max()}")
 
     print(f"\nDone in {elapsed:.1f}s")
+    ds = build_dataset(split="leave_last_n", k=10, lln_n=2)
+
+    val_above = ds.val_df.filter(pl.col("rating") >= 4.0)
+    print(f"Val interactions total:        {len(ds.val_df):,}")
+    print(f"Val interactions >= 4.0:       {len(val_above):,}")
+    print(f"Fraction above threshold:      {len(val_above)/len(ds.val_df):.2%}")
+
+    users_with_relevant = val_above["user_idx"].n_unique()
+    total_val_users = ds.val_df["user_idx"].n_unique()
+    print(f"Users with >= 1 relevant item: {users_with_relevant:,}")
+    print(f"Total val users:               {total_val_users:,}")
+    print(f"Evaluable fraction:            {users_with_relevant/total_val_users:.2%}")
+
+    # Distribution of ratings in val
+    print("\nVal rating distribution:")
+    print(ds.val_df["rating"].value_counts().sort("rating"))
+    ds_lln10 = build_dataset(split="leave_last_n", k=10, lln_n=10)
+    print(f"Users: {ds_lln10.n_users:,}  Items: {ds_lln10.n_items:,}")
+    print(f"Train: {ds_lln10.n_train:,}  Val: {ds_lln10.n_val:,}")
+
+    val_above = ds_lln10.val_df.filter(pl.col("rating") >= 4.0)
+    users_with_relevant = val_above["user_idx"].n_unique()
+    total_val_users = ds_lln10.val_df["user_idx"].n_unique()
+    print(f"Evaluable fraction: {users_with_relevant/total_val_users:.2%}")
