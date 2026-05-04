@@ -1,0 +1,10 @@
+{
+  "best_value": 0.033732819163196814,
+  "best_params": {
+    "factors": 352,
+    "iterations": 300,
+    "learning_rate": 0.036051952153224605,
+    "regularization": 0.010052341993366803
+  },
+  "n_trials": 31
+}

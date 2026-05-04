@@ -9,13 +9,14 @@ import json
 import optuna
 from data import build_dataset
 from evaluate import evaluate_ranking_model
+from implicit.recommender_base import ModelFitError
 
 
 def objective(trial: optuna.Trial, ds) -> float:
-    factors        = trial.suggest_int("factors",       64,   256, step=64)
-    iterations     = trial.suggest_int("iterations",    50,   200, step=50)
-    learning_rate  = trial.suggest_float("learning_rate",  0.01, 0.1,  log=True)
-    regularization = trial.suggest_float("regularization", 1e-4, 1e-2, log=True)
+    factors        = trial.suggest_int("factors",        128,   384, step=32)
+    iterations     = trial.suggest_int("iterations",    150,   300, step=50)
+    learning_rate  = trial.suggest_float("learning_rate",  1e-3, 5e-2, log=True)
+    regularization = trial.suggest_float("regularization", 1e-2, 1e-1, log=True)
 
     from models.bpr import BPRModel
     model = BPRModel(
@@ -23,8 +24,13 @@ def objective(trial: optuna.Trial, ds) -> float:
         iterations=iterations,
         learning_rate=learning_rate,
         regularization=regularization,
+        use_gpu=False,
     )
-    model.fit(ds.train_df, ds.implicit_matrix)
+
+    try:
+        model.fit(ds.train_df, ds.implicit_matrix)
+    except ModelFitError:
+        raise optuna.TrialPruned()
 
     eval_sample = ds.val_df.sample(fraction=0.05, seed=42)
     results = evaluate_ranking_model(

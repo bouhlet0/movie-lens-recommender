@@ -25,7 +25,7 @@ class BPRModel(BaseRecommender):
         iterations: int = 100,
         learning_rate: float = 0.05,
         regularization: float = 0.001,
-        use_gpu: bool | None = None,
+        use_gpu: bool | None = False,
     ) -> None:
         self.factors = factors
         self.iterations = iterations
