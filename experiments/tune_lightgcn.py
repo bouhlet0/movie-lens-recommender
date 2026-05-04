@@ -14,9 +14,9 @@ from evaluate import evaluate_ranking_model
 def objective(trial: optuna.Trial, ds) -> float:
     embedding_dim = trial.suggest_int("embedding_dim",  32,  128, step=32)
     n_layers      = trial.suggest_int("n_layers",        2,    4)
-    lr            = trial.suggest_float("lr",          1e-3, 1e-2, log=True)
+    lr            = trial.suggest_float("lr",          1e-4, 1e-2, log=True)
     reg_weight    = trial.suggest_float("reg_weight",  1e-5, 1e-3, log=True)
-    n_epochs      = trial.suggest_int("n_epochs",       20,   60, step=20)
+    # n_epochs      = trial.suggest_int("n_epochs",       10,   40, step=5)
 
     from models.lightgcn import LightGCNModel
     model = LightGCNModel(
@@ -26,8 +26,9 @@ def objective(trial: optuna.Trial, ds) -> float:
         n_layers=n_layers,
         lr=lr,
         reg_weight=reg_weight,
-        n_epochs=n_epochs,
-        batch_size=4096,
+        n_epochs=25,
+        batch_size=32768,
+        refresh_every=25
     )
     model.fit(ds.train_df)
 
