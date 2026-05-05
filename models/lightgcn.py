@@ -4,14 +4,10 @@ import scipy.sparse as sp
 import torch
 import torch.nn as nn
 from torch import Tensor
+import pickle
 
 from .base import BaseRecommender
 from .utils import build_seen_items
-
-
-# ---------------------------------------------------------------------------
-# Negative sampling
-# ---------------------------------------------------------------------------
 
 def _build_seen_csr(
     seen: dict[int, set],
@@ -67,10 +63,6 @@ def _sample_negatives_vectorized(
 
     return n_batch
 
-
-# ---------------------------------------------------------------------------
-# Model core
-# ---------------------------------------------------------------------------
 
 class _LightGCNCore(nn.Module):
     """
@@ -165,11 +157,6 @@ class _LightGCNCore(nn.Module):
         n0 = self.E0(neg_items + self.n_users)
 
         return users_emb, pos_emb, neg_emb, u0, p0, n0
-
-
-# ---------------------------------------------------------------------------
-# Public recommender
-# ---------------------------------------------------------------------------
 
 class LightGCNModel(BaseRecommender):
     """
@@ -321,3 +308,19 @@ class LightGCNModel(BaseRecommender):
         top_indices = np.argpartition(scores, -top_k)[-top_k:]
         top_indices = top_indices[np.argsort(-scores[top_indices])]
         return top_indices.tolist()
+    
+    @classmethod
+    def load(cls, path: str) -> "LightGCNModel":
+        with open(path, "rb") as f:
+            data = pickle.load(f)
+
+        model = cls(
+            n_users=data["n_users"],
+            n_items=data["n_items"],
+        )
+
+        model._user_factors = data["user_factors"]
+        model._item_factors = data["item_factors"]
+        model._seen = data["seen"]
+
+        return model
