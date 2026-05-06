@@ -54,6 +54,9 @@ class Recommender:
             print("  No valid items found, returning empty recommendations.")
             return self._empty_result()
         return self._recommend(item_indices, k, wildcard=wildcard, pool_size=pool_size)
+    
+    def search(self, query: str, top_n: int = 5, min_score: float = 60.0) -> pl.DataFrame:
+        return self._title_search(query, top_n=top_n, min_score=min_score)
 
     def _recommend(
         self,

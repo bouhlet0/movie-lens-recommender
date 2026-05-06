@@ -324,3 +324,6 @@ class LightGCNModel(BaseRecommender):
         model._seen = data["seen"]
 
         return model
+    
+    def is_loaded(self) -> bool:
+        return self._item_factors is not None
