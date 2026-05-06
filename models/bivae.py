@@ -28,13 +28,6 @@ class BiVAEModel(BaseRecommender):
     """
     Bilateral Variational Autoencoder for Collaborative Filtering.
     Salah et al., 2021. Wrapped from Cornac's implementation.
-
-    Likelihood modes:
-    - 'bern': Bernoulli : binary interactions (rating >= threshold only)
-    - 'pois': Poisson   : all interactions with raw ratings as counts
-              Note: star ratings are not true Poisson counts but this
-              likelihood is empirically more stable on sparse data.
-
     Loss history is stored in self.loss_i_history and self.loss_u_history
     after fit() completes.
     """
