@@ -325,5 +325,15 @@ class LightGCNModel(BaseRecommender):
 
         return model
     
+    def save(self, path: str) -> None:
+        with open(path, "wb") as f:
+            pickle.dump({
+                "user_factors": self._user_factors,
+                "item_factors": self._item_factors,
+                "seen": self._seen,
+                "n_users": self.n_users,
+                "n_items": self.n_items,
+            }, f)
+    
     def is_loaded(self) -> bool:
         return self._item_factors is not None
