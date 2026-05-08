@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Movie Recommender</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+
+  <div class="container">
+
+    <header>
+      <h1>Movie Recommender</h1>
+      <p class="subtitle">
+        Powered by LightGCN trained on MovieLens 32M
+      </p>
+    </header>
+
+    <!-- Input tabs -->
+    <div class="card">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="titles">Search by Title</button>
+        <button class="tab-btn" data-tab="imdb">IMDb Export</button>
+      </div>
+
+      <!-- Title search tab -->
+      <div class="tab-content active" id="tab-titles">
+        <div class="search-row">
+          <input
+            type="text"
+            id="title-input"
+            placeholder="Search for a movie..."
+            autocomplete="off"
+          />
+          <div class="autocomplete-dropdown" id="autocomplete-dropdown" hidden></div>
+        </div>
+        <div class="chips-container" id="chips-container">
+          <span class="chips-placeholder">Selected movies will appear here</span>
+        </div>
+      </div>
+
+      <!-- IMDb export tab -->
+      <div class="tab-content" id="tab-imdb">
+        <div class="imdb-mode-toggle">
+          <button class="mode-btn active" data-mode="csv">CSV Upload</button>
+          <button class="mode-btn" data-mode="ids">IMDb IDs</button>
+        </div>
+
+        <div id="imdb-csv-section">
+          <label class="file-label" for="csv-input">
+            <span id="file-label-text">Choose your IMDb ratings export (.csv)</span>
+            <input type="file" id="csv-input" accept=".csv" />
+          </label>
+          <div class="imdb-rating-row">
+            <label for="min-rating">
+              Minimum IMDb rating to include:
+              <span id="min-rating-value">7.0</span>
+            </label>
+            <input
+              type="range"
+              id="min-rating"
+              min="1" max="10" step="0.5"
+              value="7.0"
+            />
+          </div>
+        </div>
+
+        <div id="imdb-ids-section" hidden>
+          <textarea
+            id="imdb-ids-input"
+            placeholder="Enter IMDb IDs separated by commas e.g. tt0111161, tt0068646"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shared controls -->
+    <div class="card controls-card">
+      <div class="sliders">
+        <div class="slider-group">
+          <label for="k-slider">
+            Number of recommendations: <span id="k-value">10</span>
+          </label>
+          <input type="range" id="k-slider" min="1" max="50" value="10" />
+        </div>
+
+        <div class="slider-group dimmed" id="pool-size-group">
+          <label for="pool-slider">
+            <span class="pool-label">Surprise Me! Exploration breadth:</span>
+            <span id="pool-value">75</span>
+            <span class="pool-hint">(only used by Surprise Me!)</span>
+          </label>
+          <input type="range" id="pool-slider" min="20" max="200" value="75" />
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button class="btn btn-primary" id="recommend-btn">Recommend</button>
+        <button class="btn btn-surprise" id="surprise-btn">Surprise Me!</button>
+      </div>
+    </div>
+
+    <!-- Status / error -->
+    <div id="status-message" hidden></div>
+
+    <!-- Results -->
+    <div id="results-section" hidden>
+      <h2 id="results-title">Recommendations</h2>
+      <div class="results-grid" id="results-grid"></div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>
+      LightGCN · MovieLens 32M · 
+      <a href="/docs" target="_blank">API Docs</a>
+    </p>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
