@@ -242,8 +242,6 @@ All ranking metrics are computed **per user** and averaged over evaluable users 
 - Add content‑based features (e.g., MovieLens Tags genome) to build a hybrid model.
 - Implement model serving in Docker and a CI/CD pipeline for public deployment.
 - Experiment with multi‑stage ranking (candidate retrieval → re‑ranking).
-- Explore higher embedding dimensions and additional LightGCN layers.
-- Retune ALS with lln_n=10 validation split to validate optimal α under richer ground truth.
 
 ---
 
