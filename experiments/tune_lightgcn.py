@@ -28,7 +28,7 @@ def objective(trial: optuna.Trial, ds) -> float:
         reg_weight=reg_weight,
         n_epochs=25,
         batch_size=32768,
-        refresh_every=25
+        # refresh_every=25
     )
     model.fit(ds.train_df)
 
