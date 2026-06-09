@@ -2,8 +2,6 @@
 
 End-to-end recommender system on MovieLens 32M (~32M ratings, ~200k users, ~87k movies) implementing and comparing multiple collaborative filtering paradigms from matrix factorisation baselines to graph neural networks with ranking-focused evaluation, Optuna hyperparameter tuning, and a FastAPI inference service.
 
-> **Goal**: Showcase skills for a Junior **AI/ML Engineer / Data Scientist** role.
-
 ---
 
 ## Project Overview
